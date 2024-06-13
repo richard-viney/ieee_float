@@ -62,80 +62,74 @@ export function parse(s) {
   }
 }
 
-export function to_bytes_32_le(f) {
+function to_bytes_32(f, littleEndian) {
   const u8Array = new Uint8Array(4);
 
   const view = new DataView(u8Array.buffer);
-  view.setFloat32(0, f, true);
+  view.setFloat32(0, f, littleEndian);
 
   return new BitArray(u8Array);
+}
+
+function from_bytes_32(f, littleEndian) {
+  if (f.length !== 4) {
+    return new Error(Nil);
+  }
+
+  const view = new DataView(f.buffer.buffer);
+
+  return view.getFloat32(0, littleEndian);
+}
+
+function to_bytes_64(f, littleEndian) {
+  const u8Array = new Uint8Array(8);
+
+  const view = new DataView(u8Array.buffer);
+  view.setFloat64(0, f, littleEndian);
+
+  return new BitArray(u8Array);
+}
+
+function from_bytes_64(f, littleEndian) {
+  if (f.length !== 8) {
+    return new Error(Nil);
+  }
+
+  const view = new DataView(f.buffer.buffer);
+
+  return view.getFloat64(0, littleEndian);
+}
+
+export function to_bytes_32_le(f) {
+  return to_bytes_32(f, true);
 }
 
 export function from_bytes_32_le(f) {
-  if (f.length !== 4) {
-    return new Error(Nil);
-  }
-
-  const view = new DataView(f.buffer.buffer);
-
-  return view.getFloat32(0, true);
+  return from_bytes_32(f, true);
 }
 
 export function to_bytes_32_be(f) {
-  const u8Array = new Uint8Array(4);
-
-  const view = new DataView(u8Array.buffer);
-  view.setFloat32(0, f, false);
-
-  return new BitArray(u8Array);
+  return to_bytes_32(f, false);
 }
 
 export function from_bytes_32_be(f) {
-  if (f.length !== 4) {
-    return new Error(Nil);
-  }
-
-  const view = new DataView(f.buffer.buffer);
-
-  return view.getFloat32(0, false);
+  return from_bytes_32(f, false);
 }
 
 export function to_bytes_64_le(f) {
-  const u8Array = new Uint8Array(8);
-
-  const view = new DataView(u8Array.buffer);
-  view.setFloat64(0, f, true);
-
-  return new BitArray(u8Array);
+  return to_bytes_64(f, true);
 }
 
 export function from_bytes_64_le(f) {
-  if (f.length !== 8) {
-    return new Error(Nil);
-  }
-
-  const view = new DataView(f.buffer.buffer);
-
-  return view.getFloat64(0, true);
+  return from_bytes_64(f, true);
 }
 
 export function to_bytes_64_be(f) {
-  const u8Array = new Uint8Array(8);
-
-  const view = new DataView(u8Array.buffer);
-  view.setFloat64(0, f, false);
-
-  return new BitArray(u8Array);
+  return to_bytes_64(f, false);
 }
 
 export function from_bytes_64_be(f) {
-  if (f.length !== 8) {
-    return new Error(Nil);
-  }
-
-  const view = new DataView(f.buffer.buffer);
-
-  return view.getFloat64(0, false);
+  return from_bytes_64(f, false);
 }
 
 export function absolute_value(f) {
@@ -146,8 +140,8 @@ export function add(a, b) {
   return a + b;
 }
 
-export function ceiling(a) {
-  return Math.ceil(a);
+export function ceiling(f) {
+  return Math.ceil(f);
 }
 
 export function compare(a, b) {
@@ -168,8 +162,8 @@ export function divide(a, b) {
   return a / b;
 }
 
-export function floor(a) {
-  return Math.floor(a);
+export function floor(f) {
+  return Math.floor(f);
 }
 
 export function max(a, b) {
@@ -184,23 +178,23 @@ export function multiply(a, b) {
   return a * b;
 }
 
-export function negate(a) {
-  return -a;
+export function negate(f) {
+  return -f;
 }
 
 export function random() {
   return random_uniform();
 }
 
-export function round(a) {
-  if (Number.isFinite(a)) {
-    if (a >= 0) {
-      return new Ok(Math.round(a));
-    } else {
-      return new Ok(-Math.round(-a));
-    }
-  } else {
+export function round(f) {
+  if (!Number.isFinite(f)) {
     return new Error(Nil);
+  }
+
+  if (f >= 0) {
+    return new Ok(Math.round(f));
+  } else {
+    return new Ok(-Math.round(-f));
   }
 }
 
