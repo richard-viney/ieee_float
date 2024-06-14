@@ -1,5 +1,5 @@
 name = "ieee_float"
-version = "0.1.0"
+version = "0.2.0"
 description = "Gleam library that provides an IEEE 754 compliant float type."
 licences = ["MIT"]
 repository = { type = "github", user = "richard-viney", repo = "ieee_float" }
