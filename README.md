@@ -48,8 +48,8 @@ pub fn main() {
   let assert False = ieee_float.is_finite(positive_inf)
   let assert True = ieee_float.is_nan(nan)
 
-  // Convert to a finite value of type `Float`. If the IEEE float is not finite
-  // then the fallback value is returned.
+  // Convert to a finite value of type `Float`. If the IEEE float is not
+  // finite then the fallback value is returned.
   let assert 1.0 = ieee_float.to_finite(one, 5.0)
   let assert 5.0 = ieee_float.to_finite(positive_inf, 5.0)
 
