@@ -32,8 +32,8 @@ export function is_nan(f) {
   return Number.isNaN(f);
 }
 
-export function to_finite(f, fallback) {
-  return Number.isFinite(f) ? f : fallback;
+export function to_finite(f) {
+  return Number.isFinite(f) ? new Ok(f) : new Error(Nil);
 }
 
 export function to_string(f) {

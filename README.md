@@ -49,9 +49,9 @@ pub fn main() {
   let assert True = ieee_float.is_nan(nan)
 
   // Convert to a finite value of type `Float`. If the IEEE float is not
-  // finite then the fallback value is returned.
-  let assert 1.0 = ieee_float.to_finite(one, 5.0)
-  let assert 5.0 = ieee_float.to_finite(positive_inf, 5.0)
+  // finite then an error is returned.
+  let assert Ok(1.0) = ieee_float.to_finite(one)
+  let assert Error(Nil) = ieee_float.to_finite(positive_inf)
 
   // Convert a value to raw bytes
   let assert <<0x3F, 0x80, 0x00, 0x00>> = ieee_float.to_bytes_32_be(one)

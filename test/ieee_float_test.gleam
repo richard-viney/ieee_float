@@ -47,20 +47,20 @@ pub fn nan_test() {
 
 pub fn to_finite_test() {
   finite(1.0)
-  |> ieee_float.to_finite(2.0)
-  |> expect.to_equal(1.0)
+  |> ieee_float.to_finite
+  |> expect.to_equal(Ok(1.0))
 
   positive_infinity()
-  |> ieee_float.to_finite(2.0)
-  |> expect.to_equal(2.0)
+  |> ieee_float.to_finite
+  |> expect.to_equal(Error(Nil))
 
   negative_infinity()
-  |> ieee_float.to_finite(2.0)
-  |> expect.to_equal(2.0)
+  |> ieee_float.to_finite
+  |> expect.to_equal(Error(Nil))
 
   nan()
-  |> ieee_float.to_finite(2.0)
-  |> expect.to_equal(2.0)
+  |> ieee_float.to_finite
+  |> expect.to_equal(Error(Nil))
 }
 
 pub fn to_string_test() {

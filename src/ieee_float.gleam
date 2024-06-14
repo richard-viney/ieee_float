@@ -71,13 +71,13 @@ pub fn is_nan(f: IEEEFloat) -> Bool {
 }
 
 /// Converts an `IEEEFloat` to the native `Float` type. If the `IEEEFloat` is
-/// infinite or `NaN` then `fallback` is returned.
+/// infinite or `NaN` then `Error(Nil)` is returned.
 ///
 @external(javascript, "./ieee_float_js.mjs", "to_finite")
-pub fn to_finite(f: IEEEFloat, fallback: Float) -> Float {
+pub fn to_finite(f: IEEEFloat) -> Result(Float, Nil) {
   case f {
-    Finite(value) -> value
-    _ -> fallback
+    Finite(value) -> Ok(value)
+    _ -> Error(Nil)
   }
 }
 
