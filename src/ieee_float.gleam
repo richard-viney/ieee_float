@@ -1,6 +1,7 @@
 import gleam/erlang
 import gleam/erlang/atom
 import gleam/float
+import gleam/int
 import gleam/order.{type Order}
 import gleam/result
 import gleam/string
@@ -462,6 +463,68 @@ pub fn negate(f: IEEEFloat) -> IEEEFloat {
     Infinite(Positive) -> Infinite(Negative)
     Infinite(Negative) -> Infinite(Positive)
     NaN -> NaN
+  }
+}
+
+/// Returns the results of the base being raised to the power of the exponent.
+///
+@external(javascript, "./ieee_float_js.mjs", "power")
+pub fn power(f: IEEEFloat, exp: IEEEFloat) -> IEEEFloat {
+  case f, exp {
+    Finite(f), Finite(exp) ->
+      case rescue_bad_arith(fn() { float.power(f, exp) }) {
+        Ok(f) ->
+          f
+          |> result.map(Finite)
+          |> result.unwrap(NaN)
+
+        Error(Nil) -> Infinite(Positive)
+      }
+
+    NaN, _ | _, NaN -> NaN
+
+    // An infinity to the power of zero is one
+    Infinite(_), Finite(0.0) | Infinite(_), Finite(-0.0) -> Finite(1.0)
+
+    // 1 and -1 to the power of an infinity is NaN
+    Finite(1.0), Infinite(_) | Finite(-1.0), Infinite(_) -> NaN
+
+    // Powers involving two infinities
+    Infinite(Positive), Infinite(Positive) -> Infinite(Positive)
+    Infinite(Positive), Infinite(Negative) -> Finite(0.0)
+    Infinite(Negative), Infinite(Positive) -> Infinite(Positive)
+    Infinite(Negative), Infinite(Negative) -> Finite(0.0)
+
+    // Cases of a positive infinity and a finite
+    Infinite(Positive), Finite(f) if f <. 0.0 -> Finite(0.0)
+    Finite(0.0), Infinite(Positive) | Finite(-0.0), Infinite(Positive) ->
+      Finite(0.0)
+    Finite(_), Infinite(Positive) | Infinite(Positive), Finite(_) ->
+      Infinite(Positive)
+
+    // Cases of a finite raised to negative infinity
+    Finite(f), Infinite(Negative) ->
+      case f >. 1.0 || f <. -1.0 {
+        True -> Finite(0.0)
+        False -> Infinite(Positive)
+      }
+
+    // Case of negative infinity raised to a finite. Whole odd numbers need to
+    // be handled explicitly.
+    Infinite(Negative), Finite(f) ->
+      case int.to_float(float.round(f)) == f && int.is_odd(float.truncate(f)) {
+        True ->
+          case f <. 0.0 {
+            True -> Finite(-0.0)
+            False -> Infinite(Negative)
+          }
+
+        False ->
+          case f <. 0.0 {
+            True -> Finite(0.0)
+            False -> Infinite(Positive)
+          }
+      }
   }
 }
 

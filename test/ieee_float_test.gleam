@@ -86,41 +86,19 @@ pub fn to_string_test() {
 }
 
 pub fn parse_test() {
-  "1.23"
-  |> ieee_float.parse
-  |> expect.to_equal(finite(1.23))
+  let test_parse = build_test_function1(ieee_float.parse)
 
-  "+1.23"
-  |> ieee_float.parse
-  |> expect.to_equal(finite(1.23))
-
-  "-1.23"
-  |> ieee_float.parse
-  |> expect.to_equal(finite(-1.23))
-
-  "5.0"
-  |> ieee_float.parse
-  |> expect.to_equal(finite(5.0))
-
-  "0.123456789"
-  |> ieee_float.parse
-  |> expect.to_equal(finite(0.123456789))
-
-  "Infinity"
-  |> ieee_float.parse
-  |> expect.to_equal(positive_infinity())
-
-  "-Infinity"
-  |> ieee_float.parse
-  |> expect.to_equal(negative_infinity())
-
-  ["", "NaN", "test", "1"]
-  |> list.each(fn(s) {
-    s
-    |> ieee_float.parse
-    |> ieee_float.is_nan
-    |> expect.to_be_true
-  })
+  test_parse("1.23", finite(1.23))
+  test_parse("+1.23", finite(1.23))
+  test_parse("-1.23", finite(-1.23))
+  test_parse("5.0", finite(5.0))
+  test_parse("0.123456789", finite(0.123456789))
+  test_parse("Infinity", positive_infinity())
+  test_parse("-Infinity", negative_infinity())
+  test_parse("", nan())
+  test_parse("NaN", nan())
+  test_parse("test", nan())
+  test_parse("1", nan())
 }
 
 pub fn fp32_bytes_serde_test() {
@@ -216,148 +194,67 @@ fn text_ieee_bytes_serde(
 }
 
 pub fn absolute_value_test() {
-  ieee_float.absolute_value(finite(-1.0))
-  |> expect.to_equal(finite(1.0))
+  let test_absolute_value = build_test_function1(ieee_float.absolute_value)
 
-  ieee_float.absolute_value(finite(-20.6))
-  |> expect.to_equal(finite(20.6))
-
-  ieee_float.absolute_value(finite(0.0))
-  |> expect.to_equal(finite(0.0))
-
-  ieee_float.absolute_value(finite(1.0))
-  |> expect.to_equal(finite(1.0))
-
-  ieee_float.absolute_value(finite(25.2))
-  |> expect.to_equal(finite(25.2))
-
-  ieee_float.absolute_value(positive_infinity())
-  |> expect.to_equal(positive_infinity())
-
-  ieee_float.absolute_value(negative_infinity())
-  |> expect.to_equal(positive_infinity())
-
-  ieee_float.absolute_value(nan())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+  test_absolute_value(finite(-1.0), finite(1.0))
+  test_absolute_value(finite(-20.6), finite(20.6))
+  test_absolute_value(finite(0.0), finite(0.0))
+  test_absolute_value(finite(1.0), finite(1.0))
+  test_absolute_value(finite(25.2), finite(25.2))
+  test_absolute_value(positive_infinity(), positive_infinity())
+  test_absolute_value(negative_infinity(), positive_infinity())
+  test_absolute_value(nan(), nan())
 }
 
 pub fn add_test() {
-  finite(3.0)
-  |> ieee_float.add(finite(2.0))
-  |> expect.to_equal(finite(5.0))
+  let test_add = build_test_function2(ieee_float.add)
 
-  finite(1.7976931348623157e308)
-  |> ieee_float.add(finite(1.7976931348623157e308))
-  |> expect.to_equal(positive_infinity())
-
-  finite(-1.7976931348623157e308)
-  |> ieee_float.add(finite(1.7976931348623157e308))
-  |> expect.to_equal(finite(0.0))
-
-  finite(1.0)
-  |> ieee_float.add(nan())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  finite(1.79e308)
-  |> ieee_float.add(finite(1.79e308))
-  |> expect.to_equal(positive_infinity())
-
-  finite(-1.79e308)
-  |> ieee_float.add(finite(-1.79e308))
-  |> expect.to_equal(negative_infinity())
-
-  nan()
-  |> ieee_float.add(finite(1.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  positive_infinity()
-  |> ieee_float.add(finite(-100.0))
-  |> expect.to_equal(positive_infinity())
-
-  negative_infinity()
-  |> ieee_float.add(finite(100.0))
-  |> expect.to_equal(negative_infinity())
-
-  positive_infinity()
-  |> ieee_float.add(positive_infinity())
-  |> expect.to_equal(positive_infinity())
-
-  negative_infinity()
-  |> ieee_float.add(negative_infinity())
-  |> expect.to_equal(negative_infinity())
-
-  positive_infinity()
-  |> ieee_float.add(negative_infinity())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  negative_infinity()
-  |> ieee_float.add(positive_infinity())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+  test_add(finite(3.0), finite(2.0), finite(5.0))
+  test_add(finite(1.79769313e308), finite(1.79769313e308), positive_infinity())
+  test_add(finite(-1.797693134862e308), finite(1.797693134862e308), finite(0.0))
+  test_add(finite(1.0), nan(), nan())
+  test_add(finite(1.79e308), finite(1.79e308), positive_infinity())
+  test_add(finite(-1.79e308), finite(-1.79e308), negative_infinity())
+  test_add(nan(), finite(1.0), nan())
+  test_add(positive_infinity(), finite(-100.0), positive_infinity())
+  test_add(negative_infinity(), finite(100.0), negative_infinity())
+  test_add(positive_infinity(), positive_infinity(), positive_infinity())
+  test_add(negative_infinity(), negative_infinity(), negative_infinity())
+  test_add(positive_infinity(), negative_infinity(), nan())
+  test_add(negative_infinity(), positive_infinity(), nan())
 }
 
 pub fn ceiling_test() {
-  finite(8.1)
-  |> ieee_float.ceiling
-  |> expect.to_equal(finite(9.0))
+  let test_ceiling = build_test_function1(ieee_float.ceiling)
 
-  finite(-8.1)
-  |> ieee_float.ceiling
-  |> expect.to_equal(finite(-8.0))
-
-  finite(-8.0)
-  |> ieee_float.ceiling
-  |> expect.to_equal(finite(-8.0))
-
-  nan()
-  |> ieee_float.ceiling
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  positive_infinity()
-  |> ieee_float.ceiling
-  |> expect.to_equal(positive_infinity())
-
-  negative_infinity()
-  |> ieee_float.ceiling
-  |> expect.to_equal(negative_infinity())
+  test_ceiling(finite(8.1), finite(9.0))
+  test_ceiling(finite(-8.1), finite(-8.0))
+  test_ceiling(finite(-8.0), finite(-8.0))
+  test_ceiling(nan(), nan())
+  test_ceiling(positive_infinity(), positive_infinity())
+  test_ceiling(negative_infinity(), negative_infinity())
 }
 
 pub fn clamp_test() {
-  ieee_float.clamp(finite(1.4), min: finite(1.3), max: finite(1.5))
-  |> expect.to_equal(finite(1.4))
+  let test_clamp = build_test_function3(ieee_float.clamp)
 
-  ieee_float.clamp(finite(1.2), min: finite(1.3), max: finite(1.5))
-  |> expect.to_equal(finite(1.3))
-
-  ieee_float.clamp(finite(1.6), min: finite(1.3), max: finite(1.5))
-  |> expect.to_equal(finite(1.5))
-
-  ieee_float.clamp(
+  test_clamp(finite(1.4), finite(1.3), finite(1.5), finite(1.4))
+  test_clamp(finite(1.2), finite(1.3), finite(1.5), finite(1.3))
+  test_clamp(finite(1.6), finite(1.3), finite(1.5), finite(1.5))
+  test_clamp(
     finite(1.6),
-    min: positive_infinity(),
-    max: positive_infinity(),
+    positive_infinity(),
+    positive_infinity(),
+    positive_infinity(),
   )
-  |> expect.to_equal(positive_infinity())
-
-  ieee_float.clamp(
+  test_clamp(
     finite(1.6),
-    min: negative_infinity(),
-    max: negative_infinity(),
+    negative_infinity(),
+    negative_infinity(),
+    negative_infinity(),
   )
-  |> expect.to_equal(negative_infinity())
-
-  ieee_float.clamp(nan(), min: finite(0.0), max: finite(0.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  ieee_float.clamp(finite(0.0), min: nan(), max: finite(100.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+  test_clamp(nan(), finite(0.0), finite(0.0), nan())
+  test_clamp(finite(0.0), nan(), finite(100.0), nan())
 }
 
 pub fn compare_test() {
@@ -402,249 +299,152 @@ pub fn compare_test() {
 }
 
 pub fn divide_test() {
-  finite(6.0)
-  |> ieee_float.divide(finite(3.0))
-  |> expect.to_equal(finite(2.0))
+  let test_divide = build_test_function2(ieee_float.divide)
 
-  finite(0.0)
-  |> ieee_float.divide(finite(0.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  finite(0.0)
-  |> ieee_float.divide(finite(-0.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  finite(-0.0)
-  |> ieee_float.divide(finite(0.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  finite(-0.0)
-  |> ieee_float.divide(finite(-0.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  finite(100.0)
-  |> ieee_float.divide(finite(0.0))
-  |> expect.to_equal(positive_infinity())
-
-  finite(100.0)
-  |> ieee_float.divide(finite(-0.0))
-  |> expect.to_equal(negative_infinity())
-
-  finite(-100.0)
-  |> ieee_float.divide(finite(0.0))
-  |> expect.to_equal(negative_infinity())
-
-  finite(-100.0)
-  |> ieee_float.divide(finite(-0.0))
-  |> expect.to_equal(positive_infinity())
-
-  finite(10.0)
-  |> ieee_float.divide(finite(1.7e-308))
-  |> expect.to_equal(positive_infinity())
-
-  finite(10.0)
-  |> ieee_float.divide(finite(-1.7e-308))
-  |> expect.to_equal(negative_infinity())
-
-  finite(-10.0)
-  |> ieee_float.divide(finite(1.7e-308))
-  |> expect.to_equal(negative_infinity())
-
-  finite(-10.0)
-  |> ieee_float.divide(finite(-1.7e-308))
-  |> expect.to_equal(positive_infinity())
-
-  finite(100.0)
-  |> ieee_float.divide(positive_infinity())
-  |> expect.to_equal(finite(0.0))
-
-  finite(100.0)
-  |> ieee_float.divide(negative_infinity())
-  |> expect.to_equal(finite(-0.0))
-
-  finite(-100.0)
-  |> ieee_float.divide(positive_infinity())
-  |> expect.to_equal(finite(-0.0))
-
-  finite(-100.0)
-  |> ieee_float.divide(negative_infinity())
-  |> expect.to_equal(finite(0.0))
-
-  positive_infinity()
-  |> ieee_float.divide(finite(100.0))
-  |> expect.to_equal(positive_infinity())
-
-  positive_infinity()
-  |> ieee_float.divide(finite(-100.0))
-  |> expect.to_equal(negative_infinity())
-
-  negative_infinity()
-  |> ieee_float.divide(finite(100.0))
-  |> expect.to_equal(negative_infinity())
-
-  negative_infinity()
-  |> ieee_float.divide(finite(-100.0))
-  |> expect.to_equal(positive_infinity())
-
-  positive_infinity()
-  |> ieee_float.divide(positive_infinity())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  positive_infinity()
-  |> ieee_float.divide(negative_infinity())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  negative_infinity()
-  |> ieee_float.divide(positive_infinity())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  negative_infinity()
-  |> ieee_float.divide(negative_infinity())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+  test_divide(finite(6.0), finite(3.0), finite(2.0))
+  test_divide(finite(0.0), finite(0.0), nan())
+  test_divide(finite(0.0), finite(-0.0), nan())
+  test_divide(finite(-0.0), finite(0.0), nan())
+  test_divide(finite(-0.0), finite(-0.0), nan())
+  test_divide(finite(100.0), finite(0.0), positive_infinity())
+  test_divide(finite(100.0), finite(-0.0), negative_infinity())
+  test_divide(finite(-100.0), finite(0.0), negative_infinity())
+  test_divide(finite(-100.0), finite(-0.0), positive_infinity())
+  test_divide(finite(10.0), finite(1.7e-308), positive_infinity())
+  test_divide(finite(10.0), finite(-1.7e-308), negative_infinity())
+  test_divide(finite(-10.0), finite(1.7e-308), negative_infinity())
+  test_divide(finite(-10.0), finite(-1.7e-308), positive_infinity())
+  test_divide(finite(100.0), positive_infinity(), finite(0.0))
+  test_divide(finite(100.0), negative_infinity(), finite(-0.0))
+  test_divide(finite(-100.0), positive_infinity(), finite(-0.0))
+  test_divide(finite(-100.0), negative_infinity(), finite(0.0))
+  test_divide(positive_infinity(), finite(100.0), positive_infinity())
+  test_divide(positive_infinity(), finite(-100.0), negative_infinity())
+  test_divide(negative_infinity(), finite(100.0), negative_infinity())
+  test_divide(negative_infinity(), finite(-100.0), positive_infinity())
+  test_divide(positive_infinity(), positive_infinity(), nan())
+  test_divide(positive_infinity(), negative_infinity(), nan())
+  test_divide(negative_infinity(), positive_infinity(), nan())
+  test_divide(negative_infinity(), negative_infinity(), nan())
 }
 
 pub fn floor_test() {
-  finite(8.1)
-  |> ieee_float.floor
-  |> expect.to_equal(finite(8.0))
+  let test_floor = build_test_function1(ieee_float.floor)
 
-  finite(-8.1)
-  |> ieee_float.floor
-  |> expect.to_equal(finite(-9.0))
-
-  finite(-8.0)
-  |> ieee_float.floor
-  |> expect.to_equal(finite(-8.0))
-
-  positive_infinity()
-  |> ieee_float.floor
-  |> expect.to_equal(positive_infinity())
-
-  negative_infinity()
-  |> ieee_float.floor
-  |> expect.to_equal(negative_infinity())
-
-  nan()
-  |> ieee_float.floor
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+  test_floor(finite(8.1), finite(8.0))
+  test_floor(finite(-8.1), finite(-9.0))
+  test_floor(finite(-8.0), finite(-8.0))
+  test_floor(positive_infinity(), positive_infinity())
+  test_floor(negative_infinity(), negative_infinity())
+  test_floor(nan(), nan())
 }
 
 pub fn max_test() {
-  finite(2.0)
-  |> ieee_float.max(finite(5.0))
-  |> expect.to_equal(finite(5.0))
+  let test_max = build_test_function2(ieee_float.max)
 
-  finite(2.0)
-  |> ieee_float.max(positive_infinity())
-  |> expect.to_equal(positive_infinity())
-
-  finite(100.0)
-  |> ieee_float.max(negative_infinity())
-  |> expect.to_equal(finite(100.0))
-
-  nan()
-  |> ieee_float.max(finite(100.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+  test_max(finite(2.0), finite(5.0), finite(5.0))
+  test_max(finite(2.0), positive_infinity(), positive_infinity())
+  test_max(finite(100.0), negative_infinity(), finite(100.0))
+  test_max(nan(), finite(100.0), nan())
+  test_max(finite(100.0), nan(), nan())
+  test_max(nan(), nan(), nan())
 }
 
 pub fn min_test() {
-  finite(2.0)
-  |> ieee_float.min(finite(5.0))
-  |> expect.to_equal(finite(2.0))
+  let test_min = build_test_function2(ieee_float.min)
 
-  finite(2.0)
-  |> ieee_float.min(positive_infinity())
-  |> expect.to_equal(finite(2.0))
-
-  finite(100.0)
-  |> ieee_float.min(negative_infinity())
-  |> expect.to_equal(negative_infinity())
-
-  nan()
-  |> ieee_float.min(finite(100.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+  test_min(finite(2.0), finite(5.0), finite(2.0))
+  test_min(finite(2.0), positive_infinity(), finite(2.0))
+  test_min(finite(100.0), negative_infinity(), negative_infinity())
+  test_min(finite(100.0), nan(), nan())
+  test_min(nan(), finite(100.0), nan())
+  test_min(nan(), nan(), nan())
 }
 
 pub fn multiply_test() {
-  finite(2.0)
-  |> ieee_float.multiply(finite(3.0))
-  |> expect.to_equal(finite(6.0))
+  let test_multiply = build_test_function2(ieee_float.multiply)
 
-  finite(1.4e308)
-  |> ieee_float.multiply(finite(1.4e308))
-  |> expect.to_equal(positive_infinity())
-
-  finite(-1.4e308)
-  |> ieee_float.multiply(finite(1.4e308))
-  |> expect.to_equal(negative_infinity())
-
-  finite(-1.4e308)
-  |> ieee_float.multiply(finite(-1.4e308))
-  |> expect.to_equal(positive_infinity())
-
-  finite(2.0)
-  |> ieee_float.multiply(positive_infinity())
-  |> expect.to_equal(positive_infinity())
-
-  finite(-2.0)
-  |> ieee_float.multiply(positive_infinity())
-  |> expect.to_equal(negative_infinity())
-
-  finite(2.0)
-  |> ieee_float.multiply(negative_infinity())
-  |> expect.to_equal(negative_infinity())
-
-  finite(-2.0)
-  |> ieee_float.multiply(positive_infinity())
-  |> expect.to_equal(negative_infinity())
-
-  positive_infinity()
-  |> ieee_float.multiply(positive_infinity())
-  |> expect.to_equal(positive_infinity())
-
-  negative_infinity()
-  |> ieee_float.multiply(negative_infinity())
-  |> expect.to_equal(positive_infinity())
-
-  positive_infinity()
-  |> ieee_float.multiply(negative_infinity())
-  |> expect.to_equal(negative_infinity())
+  test_multiply(finite(2.0), finite(3.0), finite(6.0))
+  test_multiply(finite(1.4e308), finite(1.4e308), positive_infinity())
+  test_multiply(finite(-1.4e308), finite(1.4e308), negative_infinity())
+  test_multiply(finite(-1.4e308), finite(-1.4e308), positive_infinity())
+  test_multiply(finite(2.0), positive_infinity(), positive_infinity())
+  test_multiply(finite(-2.0), positive_infinity(), negative_infinity())
+  test_multiply(finite(2.0), negative_infinity(), negative_infinity())
+  test_multiply(finite(-2.0), positive_infinity(), negative_infinity())
+  test_multiply(positive_infinity(), positive_infinity(), positive_infinity())
+  test_multiply(negative_infinity(), negative_infinity(), positive_infinity())
+  test_multiply(positive_infinity(), negative_infinity(), negative_infinity())
 }
 
 pub fn negate_test() {
-  ieee_float.negate(finite(-1.0))
-  |> expect.to_equal(finite(1.0))
+  let test_negate = build_test_function1(ieee_float.negate)
 
-  ieee_float.negate(finite(2.0))
-  |> expect.to_equal(finite(-2.0))
+  test_negate(finite(-1.0), finite(1.0))
+  test_negate(finite(2.0), finite(-2.0))
+  test_negate(finite(0.0), finite(-0.0))
+  test_negate(finite(-0.0), finite(0.0))
+  test_negate(positive_infinity(), negative_infinity())
+  test_negate(negative_infinity(), positive_infinity())
+  test_negate(nan(), nan())
+}
 
-  ieee_float.negate(finite(0.0))
-  |> ieee_float.negate
-  |> expect.to_equal(finite(0.0))
+pub fn power_test() {
+  let test_power = build_test_function2(ieee_float.power)
 
-  positive_infinity()
-  |> ieee_float.negate
-  |> expect.to_equal(negative_infinity())
+  // Finite values
+  test_power(finite(6.0), finite(3.0), finite(216.0))
+  test_power(finite(0.0), finite(0.0), finite(1.0))
+  test_power(finite(100.0), finite(0.0), finite(1.0))
+  test_power(finite(-100.0), finite(0.0), finite(1.0))
+  test_power(finite(100.0), finite(-1.0), finite(0.01))
+  test_power(finite(-100.0), finite(1.5), nan())
+  test_power(finite(1.7e308), finite(10.0), positive_infinity())
 
-  negative_infinity()
-  |> ieee_float.negate
-  |> expect.to_equal(positive_infinity())
+  // Infinities to the power of zero
+  test_power(positive_infinity(), finite(0.0), finite(1.0))
+  test_power(positive_infinity(), finite(-0.0), finite(1.0))
+  test_power(negative_infinity(), finite(0.0), finite(1.0))
+  test_power(negative_infinity(), finite(-0.0), finite(1.0))
 
-  nan()
-  |> ieee_float.negate
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+  // Two infinites
+  test_power(positive_infinity(), positive_infinity(), positive_infinity())
+  test_power(positive_infinity(), negative_infinity(), finite(0.0))
+  test_power(negative_infinity(), positive_infinity(), positive_infinity())
+  test_power(negative_infinity(), negative_infinity(), finite(0.0))
+
+  // One input is positive infinity
+  test_power(finite(100.0), positive_infinity(), positive_infinity())
+  test_power(finite(-100.0), positive_infinity(), positive_infinity())
+  test_power(finite(0.0), positive_infinity(), finite(0.0))
+  test_power(finite(-0.0), positive_infinity(), finite(0.0))
+  test_power(finite(-1.0), positive_infinity(), nan())
+  test_power(finite(1.0), positive_infinity(), nan())
+  test_power(finite(-1.0), positive_infinity(), nan())
+  test_power(positive_infinity(), finite(0.1), positive_infinity())
+  test_power(positive_infinity(), finite(-1.0), finite(0.0))
+  test_power(positive_infinity(), finite(-2.0), finite(0.0))
+
+  // One input is negative infinity
+  test_power(finite(100.0), negative_infinity(), finite(0.0))
+  test_power(finite(-100.0), negative_infinity(), finite(0.0))
+  test_power(finite(0.0), negative_infinity(), positive_infinity())
+  test_power(finite(-0.0), negative_infinity(), positive_infinity())
+  test_power(finite(1.0), negative_infinity(), nan())
+  test_power(finite(-1.0), negative_infinity(), nan())
+  test_power(finite(0.5), negative_infinity(), positive_infinity())
+  test_power(finite(-0.5), negative_infinity(), positive_infinity())
+  test_power(finite(1.5), negative_infinity(), finite(0.0))
+  test_power(finite(-1.5), negative_infinity(), finite(0.0))
+  test_power(negative_infinity(), finite(2.0), positive_infinity())
+  test_power(negative_infinity(), finite(3.0), negative_infinity())
+  test_power(negative_infinity(), finite(-2.0), finite(0.0))
+  test_power(negative_infinity(), finite(-3.0), finite(-0.0))
+
+  // NaN
+  test_power(nan(), finite(10.0), nan())
+  test_power(finite(10.0), nan(), nan())
+  test_power(nan(), nan(), nan())
 }
 
 pub fn random_test() {
@@ -694,59 +494,48 @@ pub fn round_test() {
 }
 
 pub fn subtract_test() {
-  finite(3.0)
-  |> ieee_float.subtract(finite(2.0))
-  |> expect.to_equal(finite(1.0))
+  let test_subtract = build_test_function2(ieee_float.subtract)
 
-  finite(-1.7976931348623157e308)
-  |> ieee_float.subtract(finite(1.7976931348623157e308))
-  |> expect.to_equal(negative_infinity())
+  test_subtract(finite(3.0), finite(2.0), finite(1.0))
+  test_subtract(
+    finite(-1.7976931348623157e308),
+    finite(1.7976931348623157e308),
+    negative_infinity(),
+  )
+  test_subtract(
+    finite(1.7976931348623157e308),
+    finite(1.7976931348623157e308),
+    finite(0.0),
+  )
+  test_subtract(finite(1.0), nan(), nan())
+  test_subtract(finite(-1.79e308), finite(1.79e308), negative_infinity())
+  test_subtract(finite(1.79e308), finite(-1.79e308), positive_infinity())
+  test_subtract(nan(), finite(1.0), nan())
+  test_subtract(positive_infinity(), finite(-100.0), positive_infinity())
+  test_subtract(negative_infinity(), finite(100.0), negative_infinity())
+  test_subtract(positive_infinity(), negative_infinity(), positive_infinity())
+  test_subtract(negative_infinity(), positive_infinity(), negative_infinity())
+  test_subtract(positive_infinity(), positive_infinity(), nan())
+  test_subtract(negative_infinity(), negative_infinity(), nan())
+}
 
-  finite(1.7976931348623157e308)
-  |> ieee_float.subtract(finite(1.7976931348623157e308))
-  |> expect.to_equal(finite(0.0))
+fn build_test_function1(f: fn(a) -> IEEEFloat) {
+  fn(a, expected_value) { f(a) |> check_expected_value(expected_value) }
+}
 
-  finite(1.0)
-  |> ieee_float.subtract(nan())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+fn build_test_function2(f: fn(a, b) -> IEEEFloat) {
+  fn(a, b, expected_value) { f(a, b) |> check_expected_value(expected_value) }
+}
 
-  finite(-1.79e308)
-  |> ieee_float.subtract(finite(1.79e308))
-  |> expect.to_equal(negative_infinity())
+fn build_test_function3(f: fn(a, b, c) -> IEEEFloat) {
+  fn(a, b, c, expected_value) {
+    f(a, b, c) |> check_expected_value(expected_value)
+  }
+}
 
-  finite(1.79e308)
-  |> ieee_float.subtract(finite(-1.79e308))
-  |> expect.to_equal(positive_infinity())
-
-  nan()
-  |> ieee_float.subtract(finite(1.0))
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  positive_infinity()
-  |> ieee_float.subtract(finite(-100.0))
-  |> expect.to_equal(positive_infinity())
-
-  negative_infinity()
-  |> ieee_float.subtract(finite(100.0))
-  |> expect.to_equal(negative_infinity())
-
-  positive_infinity()
-  |> ieee_float.subtract(negative_infinity())
-  |> expect.to_equal(positive_infinity())
-
-  negative_infinity()
-  |> ieee_float.subtract(positive_infinity())
-  |> expect.to_equal(negative_infinity())
-
-  positive_infinity()
-  |> ieee_float.subtract(positive_infinity())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
-
-  negative_infinity()
-  |> ieee_float.subtract(negative_infinity())
-  |> ieee_float.is_nan
-  |> expect.to_be_true
+fn check_expected_value(value: IEEEFloat, expected_value: IEEEFloat) {
+  case ieee_float.is_nan(value) {
+    True -> ieee_float.is_nan(value) |> expect.to_be_true
+    False -> value |> expect.to_equal(expected_value)
+  }
 }

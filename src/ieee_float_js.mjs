@@ -182,6 +182,10 @@ export function negate(f) {
   return -f;
 }
 
+export function power(base, exponent) {
+  return base ** exponent;
+}
+
 export function random() {
   return random_uniform();
 }
