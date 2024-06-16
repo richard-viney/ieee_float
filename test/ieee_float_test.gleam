@@ -493,6 +493,18 @@ pub fn round_test() {
   })
 }
 
+pub fn square_root_test() {
+  let test_square_root = build_test_function1(ieee_float.square_root)
+
+  test_square_root(finite(0.0), finite(0.0))
+  test_square_root(finite(1.0), finite(1.0))
+  test_square_root(finite(16.0), finite(4.0))
+  test_square_root(finite(-1.0), nan())
+  test_square_root(positive_infinity(), positive_infinity())
+  test_square_root(negative_infinity(), positive_infinity())
+  test_square_root(nan(), nan())
+}
+
 pub fn subtract_test() {
   let test_subtract = build_test_function2(ieee_float.subtract)
 

@@ -549,6 +549,13 @@ pub fn round(f: IEEEFloat) -> Result(Int, Nil) {
   }
 }
 
+/// Returns the square root of an `IEEEFloat`.
+///
+@external(javascript, "./ieee_float_js.mjs", "square_root")
+pub fn square_root(f: IEEEFloat) -> IEEEFloat {
+  power(f, Finite(0.5))
+}
+
 /// Subtracts one `IEEEFloat` from another.
 ///
 @external(javascript, "./ieee_float_js.mjs", "subtract")

@@ -206,4 +206,8 @@ export function subtract(a, b) {
   return a - b;
 }
 
+export function square_root(f) {
+  return Math.sqrt(f)
+}
+
 export function rescue_bad_arith() {}
