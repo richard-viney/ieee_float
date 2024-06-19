@@ -71,12 +71,12 @@ function to_bytes_32(f, littleEndian) {
   return new BitArray(u8Array);
 }
 
-function from_bytes_32(f, littleEndian) {
-  if (f.length !== 4) {
+function from_bytes_32(bitArray, littleEndian) {
+  if (bitArray.length !== 4) {
     return new Error(Nil);
   }
 
-  const view = new DataView(f.buffer.buffer);
+  const view = new DataView(bitArray.buffer.buffer, bitArray.buffer.byteOffset);
 
   return view.getFloat32(0, littleEndian);
 }
@@ -90,12 +90,12 @@ function to_bytes_64(f, littleEndian) {
   return new BitArray(u8Array);
 }
 
-function from_bytes_64(f, littleEndian) {
-  if (f.length !== 8) {
+function from_bytes_64(bitArray, littleEndian) {
+  if (bitArray.length !== 8) {
     return new Error(Nil);
   }
 
-  const view = new DataView(f.buffer.buffer);
+  const view = new DataView(bitArray.buffer.buffer, bitArray.buffer.byteOffset);
 
   return view.getFloat64(0, littleEndian);
 }
