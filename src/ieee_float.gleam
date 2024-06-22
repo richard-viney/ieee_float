@@ -110,6 +110,58 @@ pub fn parse(s: String) -> IEEEFloat {
   }
 }
 
+/// Converts an `IEEEFloat` to bytes for a little endian 16-bit IEEE 754 float.
+///
+@external(javascript, "./ieee_float_js.mjs", "to_bytes_16_le")
+pub fn to_bytes_16_le(f: IEEEFloat) -> BitArray {
+  case f {
+    Finite(f) -> <<f:16-float-little>>
+    Infinite(Positive) -> <<0x7C00:16-little>>
+    Infinite(Negative) -> <<0xFC00:16-little>>
+    NaN -> <<0x7E00:16-little>>
+  }
+}
+
+/// Converts bytes for a little endian 16-bit IEEE 754 float to an `IEEEFloat`.
+///
+/// If the bit array doesn't contain exactly two bytes then NaN is returned.
+///
+@external(javascript, "./ieee_float_js.mjs", "from_bytes_16_le")
+pub fn from_bytes_16_le(bytes: BitArray) -> IEEEFloat {
+  case bytes {
+    <<value:16-float-little>> -> Finite(value)
+    <<0x7C00:16-little>> -> Infinite(Positive)
+    <<0xFC00:16-little>> -> Infinite(Negative)
+    _ -> NaN
+  }
+}
+
+/// Converts an `IEEEFloat` to bytes for a big endian 16-bit IEEE 754 float.
+///
+@external(javascript, "./ieee_float_js.mjs", "to_bytes_16_be")
+pub fn to_bytes_16_be(f: IEEEFloat) -> BitArray {
+  case f {
+    Finite(f) -> <<f:16-float>>
+    Infinite(Positive) -> <<0x7C00:16>>
+    Infinite(Negative) -> <<0xFC00:16>>
+    NaN -> <<0x7E00:16>>
+  }
+}
+
+/// Converts bytes for a big endian 16-bit IEEE 754 float to an `IEEEFloat`.
+///
+/// If the bit array doesn't contain exactly two bytes then NaN is returned.
+///
+@external(javascript, "./ieee_float_js.mjs", "from_bytes_16_be")
+pub fn from_bytes_16_be(bytes: BitArray) -> IEEEFloat {
+  case bytes {
+    <<value:16-float>> -> Finite(value)
+    <<0x7C00:16>> -> Infinite(Positive)
+    <<0xFC00:16>> -> Infinite(Negative)
+    _ -> NaN
+  }
+}
+
 /// Converts an `IEEEFloat` to bytes for a little endian 32-bit IEEE 754 float.
 ///
 @external(javascript, "./ieee_float_js.mjs", "to_bytes_32_le")

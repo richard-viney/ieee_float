@@ -62,6 +62,78 @@ export function parse(s) {
   }
 }
 
+function to_bytes_16(num, littleEndian) {
+  const u8Array = new Uint8Array(2);
+
+  if (isNaN(num)) {
+    u8Array[1] = 0x7e;
+  } else if (num === Infinity) {
+    u8Array[1] = 0x7c;
+  } else if (num === -Infinity) {
+    u8Array[1] = 0xfc;
+  } else if (num === 0) {
+    // Both values are already zero
+  } else {
+    const sign = num < 0 ? 1 : 0;
+    num = Math.abs(num);
+
+    let exponent = Math.floor(Math.log2(num));
+    let fraction = num / Math.pow(2, exponent) - 1;
+
+    exponent += 15;
+
+    if (exponent <= 0) {
+      exponent = 0;
+      fraction = num / Math.pow(2, -14);
+    } else if (exponent >= 31) {
+      exponent = 31;
+      fraction = 0;
+    }
+
+    fraction = Math.round(fraction * 1024);
+
+    u8Array[1] =
+      (sign << 7) | ((exponent & 0x1f) << 2) | ((fraction >> 8) & 0x03);
+    u8Array[0] = fraction & 0xff;
+  }
+
+  if (!littleEndian) {
+    const a = u8Array[0];
+    u8Array[0] = u8Array[1];
+    u8Array[1] = a;
+  }
+
+  return new BitArray(u8Array);
+}
+
+function from_bytes_16(bitArray, littleEndian) {
+  if (bitArray.length !== 2) {
+    return NaN;
+  }
+
+  let intValue;
+  if (littleEndian) {
+    intValue = bitArray.buffer[0] + bitArray.buffer[1] * 256;
+  } else {
+    intValue = bitArray.buffer[0] * 256 + bitArray.buffer[1];
+  }
+
+  const sign = intValue >= 0x8000 ? -1 : 1;
+  const exponent = (intValue & 0x7c00) >> 10;
+  const fraction = intValue & 0x03ff;
+
+  let value;
+  if (exponent === 0) {
+    value = 6.103515625e-5 * (fraction / 0x400);
+  } else if (exponent === 0x1f) {
+    value = fraction === 0 ? Infinity : NaN;
+  } else {
+    value = Math.pow(2, exponent - 15) * (1 + fraction / 0x400);
+  }
+
+  return sign * value;
+}
+
 function to_bytes_32(f, littleEndian) {
   const u8Array = new Uint8Array(4);
 
@@ -98,6 +170,22 @@ function from_bytes_64(bitArray, littleEndian) {
   const view = new DataView(bitArray.buffer.buffer, bitArray.buffer.byteOffset);
 
   return view.getFloat64(0, littleEndian);
+}
+
+export function to_bytes_16_le(f) {
+  return to_bytes_16(f, true);
+}
+
+export function from_bytes_16_le(f) {
+  return from_bytes_16(f, true);
+}
+
+export function to_bytes_16_be(f) {
+  return to_bytes_16(f, false);
+}
+
+export function from_bytes_16_be(f) {
+  return from_bytes_16(f, false);
 }
 
 export function to_bytes_32_le(f) {

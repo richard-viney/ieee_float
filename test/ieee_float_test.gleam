@@ -101,6 +101,35 @@ pub fn parse_test() {
   test_parse("1", nan())
 }
 
+pub fn fp16_bytes_serde_test() {
+  [
+    #([0x00, 0x00], finite(0.0)),
+    #([0x3C, 0x00], finite(1.0)),
+    #([0xBC, 0x00], finite(-1.0)),
+    #([0x3C, 0xF0], finite(1.234375)),
+    #([0xFB, 0xFF], finite(-65_504.0)),
+    #([0x80, 0xFF], finite(-0.00001519918441772461)),
+    #([0x7C, 0x00], positive_infinity()),
+    #([0xFC, 0x00], negative_infinity()),
+    #([0x7E, 0x00], nan()),
+  ]
+  |> test_ieee_bytes_serde(
+    ieee_float.from_bytes_16_be,
+    ieee_float.to_bytes_16_be,
+    ieee_float.from_bytes_16_le,
+    ieee_float.to_bytes_16_le,
+  )
+
+  // Check overly large values round to infinity
+  finite(1_000_000.0)
+  |> ieee_float.to_bytes_16_be
+  |> expect.to_equal(<<0x7C, 0x00>>)
+
+  finite(-1_000_000.0)
+  |> ieee_float.to_bytes_16_be
+  |> expect.to_equal(<<0xFC, 0x00>>)
+}
+
 pub fn fp32_bytes_serde_test() {
   [
     #([0x00, 0x00, 0x00, 0x00], finite(0.0)),
