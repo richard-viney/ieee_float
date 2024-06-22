@@ -113,24 +113,21 @@ pub fn fp32_bytes_serde_test() {
     #([0xFF, 0x80, 0x00, 0x00], negative_infinity()),
     #([0x7F, 0xC0, 0x00, 0x00], nan()),
   ]
-  |> list.each(fn(x) {
-    let #(bytes, expected_value) = x
+  |> test_ieee_bytes_serde(
+    ieee_float.from_bytes_32_be,
+    ieee_float.to_bytes_32_be,
+    ieee_float.from_bytes_32_le,
+    ieee_float.to_bytes_32_le,
+  )
 
-    bytes
-    |> text_ieee_bytes_serde(
-      expected_value,
-      ieee_float.from_bytes_32_be,
-      ieee_float.to_bytes_32_be,
-    )
+  // Check overly large values round to infinity
+  finite(1.7e308)
+  |> ieee_float.to_bytes_32_be
+  |> expect.to_equal(<<0x7F, 0x80, 0x00, 0x00>>)
 
-    bytes
-    |> list.reverse
-    |> text_ieee_bytes_serde(
-      expected_value,
-      ieee_float.from_bytes_32_le,
-      ieee_float.to_bytes_32_le,
-    )
-  })
+  finite(-1.7e308)
+  |> ieee_float.to_bytes_32_be
+  |> expect.to_equal(<<0xFF, 0x80, 0x00, 0x00>>)
 }
 
 pub fn fp64_bytes_serde_test() {
@@ -148,47 +145,59 @@ pub fn fp64_bytes_serde_test() {
     #([0xFF, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], negative_infinity()),
     #([0x7F, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], nan()),
   ]
-  |> list.each(fn(x) {
+  |> test_ieee_bytes_serde(
+    ieee_float.from_bytes_64_be,
+    ieee_float.to_bytes_64_be,
+    ieee_float.from_bytes_64_le,
+    ieee_float.to_bytes_64_le,
+  )
+}
+
+fn test_ieee_bytes_serde(
+  cases: List(#(List(Int), IEEEFloat)),
+  from_bytes_be: fn(BitArray) -> IEEEFloat,
+  to_bytes_be: fn(IEEEFloat) -> BitArray,
+  from_bytes_le: fn(BitArray) -> IEEEFloat,
+  to_bytes_le: fn(IEEEFloat) -> BitArray,
+) {
+  let test_serde = fn(bytes, expected_value, from_bytes, to_bytes) {
+    let bytes =
+      bytes
+      |> list.map(fn(x) { <<x>> })
+      |> bit_array.concat
+
+    let f = from_bytes(bytes)
+
+    case ieee_float.is_nan(expected_value) {
+      True -> ieee_float.is_nan(f) |> expect.to_be_true
+      False -> f |> expect.to_equal(expected_value)
+    }
+
+    expected_value
+    |> to_bytes
+    |> expect.to_equal(bytes)
+  }
+
+  list.each(cases, fn(x) {
     let #(bytes, expected_value) = x
 
     bytes
-    |> text_ieee_bytes_serde(
-      expected_value,
-      ieee_float.from_bytes_64_be,
-      ieee_float.to_bytes_64_be,
-    )
+    |> test_serde(expected_value, from_bytes_be, to_bytes_be)
 
     bytes
     |> list.reverse
-    |> text_ieee_bytes_serde(
-      expected_value,
-      ieee_float.from_bytes_64_le,
-      ieee_float.to_bytes_64_le,
-    )
+    |> test_serde(expected_value, from_bytes_le, to_bytes_le)
   })
-}
 
-fn text_ieee_bytes_serde(
-  bytes: List(Int),
-  expected_value: IEEEFloat,
-  from_bytes: fn(BitArray) -> IEEEFloat,
-  to_bytes: fn(IEEEFloat) -> BitArray,
-) {
-  let bits =
-    bytes
-    |> list.map(fn(x) { <<x>> })
-    |> bit_array.concat
+  <<0>>
+  |> from_bytes_be
+  |> ieee_float.is_nan
+  |> expect.to_be_true
 
-  let f = from_bytes(bits)
-
-  case ieee_float.is_nan(expected_value) {
-    True -> ieee_float.is_nan(f) |> expect.to_be_true
-    False -> f |> expect.to_equal(expected_value)
-  }
-
-  expected_value
-  |> to_bytes
-  |> expect.to_equal(bits)
+  <<0>>
+  |> from_bytes_le
+  |> ieee_float.is_nan
+  |> expect.to_be_true
 
   Nil
 }

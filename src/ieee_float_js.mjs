@@ -73,7 +73,7 @@ function to_bytes_32(f, littleEndian) {
 
 function from_bytes_32(bitArray, littleEndian) {
   if (bitArray.length !== 4) {
-    return new Error(Nil);
+    return NaN;
   }
 
   const view = new DataView(bitArray.buffer.buffer, bitArray.buffer.byteOffset);
@@ -92,7 +92,7 @@ function to_bytes_64(f, littleEndian) {
 
 function from_bytes_64(bitArray, littleEndian) {
   if (bitArray.length !== 8) {
-    return new Error(Nil);
+    return NaN;
   }
 
   const view = new DataView(bitArray.buffer.buffer, bitArray.buffer.byteOffset);
@@ -207,7 +207,7 @@ export function subtract(a, b) {
 }
 
 export function square_root(f) {
-  return Math.sqrt(f)
+  return Math.sqrt(f);
 }
 
 export function rescue_bad_arith() {}

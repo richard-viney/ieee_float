@@ -45,7 +45,7 @@ pub fn negative_infinity() -> IEEEFloat {
   Infinite(Negative)
 }
 
-/// Returns the `NaN` value.
+/// Returns the NaN (Not a Number) value.
 ///
 @external(javascript, "./ieee_float_js.mjs", "nan")
 pub fn nan() -> IEEEFloat {
@@ -53,7 +53,7 @@ pub fn nan() -> IEEEFloat {
 }
 
 /// Returns whether an `IEEEFloat` is finite. If it isn't finite it is either
-/// infinite or `NaN`.
+/// infinite or NaN.
 ///
 @external(javascript, "./ieee_float_js.mjs", "is_finite")
 pub fn is_finite(f: IEEEFloat) -> Bool {
@@ -63,8 +63,8 @@ pub fn is_finite(f: IEEEFloat) -> Bool {
   }
 }
 
-/// Returns whether an `IEEEFloat` is `NaN`. If it isn't `NaN` it is either
-/// finite or infinite.
+/// Returns whether an `IEEEFloat` is NaN. If it isn't NaN it is either finite
+/// or infinite.
 ///
 @external(javascript, "./ieee_float_js.mjs", "is_nan")
 pub fn is_nan(f: IEEEFloat) -> Bool {
@@ -72,7 +72,7 @@ pub fn is_nan(f: IEEEFloat) -> Bool {
 }
 
 /// Converts an `IEEEFloat` to the native `Float` type. If the `IEEEFloat` is
-/// infinite or `NaN` then `Error(Nil)` is returned.
+/// infinite or NaN then `Error(Nil)` is returned.
 ///
 @external(javascript, "./ieee_float_js.mjs", "to_finite")
 pub fn to_finite(f: IEEEFloat) -> Result(Float, Nil) {
@@ -95,7 +95,7 @@ pub fn to_string(f: IEEEFloat) -> String {
 }
 
 /// Parses a string to an `IEEEFloat`. If the string is not a valid float then
-/// `NaN` is returned.
+/// NaN is returned.
 ///
 @external(javascript, "./ieee_float_js.mjs", "parse")
 pub fn parse(s: String) -> IEEEFloat {
@@ -124,6 +124,8 @@ pub fn to_bytes_32_le(f: IEEEFloat) -> BitArray {
 
 /// Converts bytes for a little endian 32-bit IEEE 754 float to an `IEEEFloat`.
 ///
+/// If the bit array doesn't contain exactly four bytes then NaN is returned.
+///
 @external(javascript, "./ieee_float_js.mjs", "from_bytes_32_le")
 pub fn from_bytes_32_le(bytes: BitArray) -> IEEEFloat {
   case bytes {
@@ -139,21 +141,23 @@ pub fn from_bytes_32_le(bytes: BitArray) -> IEEEFloat {
 @external(javascript, "./ieee_float_js.mjs", "to_bytes_32_be")
 pub fn to_bytes_32_be(f: IEEEFloat) -> BitArray {
   case f {
-    Finite(f) -> <<f:32-float-big>>
-    Infinite(Positive) -> <<0x7F800000:32-big>>
-    Infinite(Negative) -> <<0xFF800000:32-big>>
-    NaN -> <<0x7FC00000:32-big>>
+    Finite(f) -> <<f:32-float>>
+    Infinite(Positive) -> <<0x7F800000:32>>
+    Infinite(Negative) -> <<0xFF800000:32>>
+    NaN -> <<0x7FC00000:32>>
   }
 }
 
 /// Converts bytes for a big endian 32-bit IEEE 754 float to an `IEEEFloat`.
 ///
+/// If the bit array doesn't contain exactly four bytes then NaN is returned.
+///
 @external(javascript, "./ieee_float_js.mjs", "from_bytes_32_be")
 pub fn from_bytes_32_be(bytes: BitArray) -> IEEEFloat {
   case bytes {
-    <<value:32-float-big>> -> Finite(value)
-    <<0x7F800000:32-big>> -> Infinite(Positive)
-    <<0xFF800000:32-big>> -> Infinite(Negative)
+    <<value:32-float>> -> Finite(value)
+    <<0x7F800000:32>> -> Infinite(Positive)
+    <<0xFF800000:32>> -> Infinite(Negative)
     _ -> NaN
   }
 }
@@ -172,6 +176,8 @@ pub fn to_bytes_64_le(f: IEEEFloat) -> BitArray {
 
 /// Converts bytes for a little endian 64-bit IEEE 754 float to an `IEEEFloat`.
 ///
+/// If the bit array doesn't contain exactly eight bytes then NaN is returned.
+///
 @external(javascript, "./ieee_float_js.mjs", "from_bytes_64_le")
 pub fn from_bytes_64_le(bytes: BitArray) -> IEEEFloat {
   case bytes {
@@ -187,31 +193,33 @@ pub fn from_bytes_64_le(bytes: BitArray) -> IEEEFloat {
 @external(javascript, "./ieee_float_js.mjs", "to_bytes_64_be")
 pub fn to_bytes_64_be(f: IEEEFloat) -> BitArray {
   case f {
-    Finite(f) -> <<f:64-float-big>>
-    Infinite(Positive) -> <<0x7FF0000000000000:64-big>>
-    Infinite(Negative) -> <<0xFFF0000000000000:64-big>>
-    NaN -> <<0x7FF8000000000000:64-big>>
+    Finite(f) -> <<f:64-float>>
+    Infinite(Positive) -> <<0x7FF0000000000000:64>>
+    Infinite(Negative) -> <<0xFFF0000000000000:64>>
+    NaN -> <<0x7FF8000000000000:64>>
   }
 }
 
 /// Converts bytes for a big endian 64-bit IEEE 754 float to an `IEEEFloat`.
 ///
+/// If the bit array doesn't contain exactly eight bytes then NaN is returned.
+///
 @external(javascript, "./ieee_float_js.mjs", "from_bytes_64_be")
 pub fn from_bytes_64_be(bytes: BitArray) -> IEEEFloat {
   case bytes {
-    <<value:64-float-big>> -> Finite(value)
-    <<0x7FF0000000000000:64-big>> -> Infinite(Positive)
-    <<0xFFF0000000000000:64-big>> -> Infinite(Negative)
+    <<value:64-float>> -> Finite(value)
+    <<0x7FF0000000000000:64>> -> Infinite(Positive)
+    <<0xFFF0000000000000:64>> -> Infinite(Negative)
     _ -> NaN
   }
 }
 
 /// This helper function detects the `badarith` error that is raised by Erlang
 /// when a floating point operation gives a result that is not allowed, such as
-/// an infinity or a NaN.
+/// an infinity or NaN.
 ///
-/// `Error(Nil)` indicates that a `badarith` error occurred when executing the
-/// passed function.
+/// An `Error(Nil)` return value indicates that a `badarith` error occurred when
+/// executing the passed function.
 ///
 @external(javascript, "./ieee_float_js.mjs", "rescue_bad_arith")
 fn rescue_bad_arith(do: fn() -> a) -> Result(a, Nil) {
@@ -298,7 +306,7 @@ pub fn clamp(
 }
 
 /// Compares two `IEEEFloats`, returning an `Order`: `Lt` for lower than, `Eq`
-/// for equals, or `Gt` for greater than. If either value is `NaN` then
+/// for equals, or `Gt` for greater than. If either value is NaN then
 /// `Error(Nil)` is returned.
 ///
 @external(javascript, "./ieee_float_js.mjs", "compare")
