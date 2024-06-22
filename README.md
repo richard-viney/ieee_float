@@ -81,6 +81,12 @@ pub fn main() {
 }
 ```
 
+### Erlang Version
+
+Use Erlang 27 or later for the best IEEE 754 compliance. Earlier Erlang versions
+will work for the vast majority of use cases, but operations involving or
+returning negative zero may return non-compliant results.
+
 ## License
 
 This library is published under the MIT license, a copy of which is included.
