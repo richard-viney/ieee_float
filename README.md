@@ -10,9 +10,9 @@ This Gleam library provides an `IEEEFloat` type that is compliant with the IEEE
 
 ## Background
 
-Erlang's native float data type does not support infinity and NaN values, and
-this library fills that gap when these values need to be able to be represented
-and worked with.
+Erlang's native float data type does not support infinity and NaN values. This
+library fills that gap when such values need to be able to be represented and
+worked with.
 
 On the JavaScript target, an `IEEEFloat` is simply a `number` because JavaScript
 natively implements the IEEE 754 standard.

@@ -278,17 +278,21 @@ fn rescue_bad_arith(do: fn() -> a) -> Result(a, Nil) {
   case erlang.rescue(do) {
     Ok(r) -> Ok(r)
 
-    Error(erlang.Errored(reason)) ->
-      case
-        atom.from_dynamic(reason) |> result.map(atom.to_string)
-        == Ok("badarith")
-      {
+    Error(erlang.Errored(reason)) -> {
+      // Convert reason to string
+      let reason =
+        reason
+        |> atom.from_dynamic
+        |> result.map(atom.to_string)
+
+      case reason == Ok("badarith") {
         True -> Error(Nil)
         False ->
           panic as {
             "Unexpected error in float operation: " <> string.inspect(reason)
           }
       }
+    }
 
     Error(e) ->
       panic as { "Unexpected error in float operation: " <> string.inspect(e) }
@@ -357,7 +361,7 @@ pub fn clamp(
   |> max(min_bound)
 }
 
-/// Compares two `IEEEFloats`, returning an `Order`: `Lt` for lower than, `Eq`
+/// Compares two `IEEEFloat`s, returning an `Order`: `Lt` for lower than, `Eq`
 /// for equals, or `Gt` for greater than. If either value is NaN then
 /// `Error(Nil)` is returned.
 ///
