@@ -26,28 +26,28 @@ type Sign {
 
 /// Creates a new `IEEEFloat` from a `Float`.
 ///
-@external(javascript, "./ieee_float_js.mjs", "finite")
+@external(javascript, "./ieee_float_ffi.mjs", "finite")
 pub fn finite(f: Float) -> IEEEFloat {
   Finite(f)
 }
 
 /// Returns the positive infinity value.
 ///
-@external(javascript, "./ieee_float_js.mjs", "positive_infinity")
+@external(javascript, "./ieee_float_ffi.mjs", "positive_infinity")
 pub fn positive_infinity() -> IEEEFloat {
   Infinite(Positive)
 }
 
 /// Returns the negative infinity value.
 ///
-@external(javascript, "./ieee_float_js.mjs", "negative_infinity")
+@external(javascript, "./ieee_float_ffi.mjs", "negative_infinity")
 pub fn negative_infinity() -> IEEEFloat {
   Infinite(Negative)
 }
 
 /// Returns the NaN (Not a Number) value.
 ///
-@external(javascript, "./ieee_float_js.mjs", "nan")
+@external(javascript, "./ieee_float_ffi.mjs", "nan")
 pub fn nan() -> IEEEFloat {
   NaN
 }
@@ -55,7 +55,7 @@ pub fn nan() -> IEEEFloat {
 /// Returns whether an `IEEEFloat` is finite. If it isn't finite it is either
 /// infinite or NaN.
 ///
-@external(javascript, "./ieee_float_js.mjs", "is_finite")
+@external(javascript, "./ieee_float_ffi.mjs", "is_finite")
 pub fn is_finite(f: IEEEFloat) -> Bool {
   case f {
     Finite(_) -> True
@@ -66,7 +66,7 @@ pub fn is_finite(f: IEEEFloat) -> Bool {
 /// Returns whether an `IEEEFloat` is NaN. If it isn't NaN it is either finite
 /// or infinite.
 ///
-@external(javascript, "./ieee_float_js.mjs", "is_nan")
+@external(javascript, "./ieee_float_ffi.mjs", "is_nan")
 pub fn is_nan(f: IEEEFloat) -> Bool {
   f == NaN
 }
@@ -74,7 +74,7 @@ pub fn is_nan(f: IEEEFloat) -> Bool {
 /// Converts an `IEEEFloat` to the native `Float` type. If the `IEEEFloat` is
 /// infinite or NaN then `Error(Nil)` is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "to_finite")
+@external(javascript, "./ieee_float_ffi.mjs", "to_finite")
 pub fn to_finite(f: IEEEFloat) -> Result(Float, Nil) {
   case f {
     Finite(value) -> Ok(value)
@@ -84,7 +84,7 @@ pub fn to_finite(f: IEEEFloat) -> Result(Float, Nil) {
 
 /// Formats an `IEEEFloat` as a string.
 ///
-@external(javascript, "./ieee_float_js.mjs", "to_string")
+@external(javascript, "./ieee_float_ffi.mjs", "to_string")
 pub fn to_string(f: IEEEFloat) -> String {
   case f {
     Finite(f) -> float.to_string(f)
@@ -97,7 +97,7 @@ pub fn to_string(f: IEEEFloat) -> String {
 /// Parses a string to an `IEEEFloat`. If the string is not a valid float then
 /// NaN is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "parse")
+@external(javascript, "./ieee_float_ffi.mjs", "parse")
 pub fn parse(s: String) -> IEEEFloat {
   case string.trim(s) {
     "Infinity" -> Infinite(Positive)
@@ -112,7 +112,7 @@ pub fn parse(s: String) -> IEEEFloat {
 
 /// Converts an `IEEEFloat` to bytes for a little endian 16-bit IEEE 754 float.
 ///
-@external(javascript, "./ieee_float_js.mjs", "to_bytes_16_le")
+@external(javascript, "./ieee_float_ffi.mjs", "to_bytes_16_le")
 pub fn to_bytes_16_le(f: IEEEFloat) -> BitArray {
   case f {
     Finite(f) -> <<f:16-float-little>>
@@ -126,7 +126,7 @@ pub fn to_bytes_16_le(f: IEEEFloat) -> BitArray {
 ///
 /// If the bit array doesn't contain exactly two bytes then NaN is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "from_bytes_16_le")
+@external(javascript, "./ieee_float_ffi.mjs", "from_bytes_16_le")
 pub fn from_bytes_16_le(bytes: BitArray) -> IEEEFloat {
   case bytes {
     <<value:16-float-little>> -> Finite(value)
@@ -138,7 +138,7 @@ pub fn from_bytes_16_le(bytes: BitArray) -> IEEEFloat {
 
 /// Converts an `IEEEFloat` to bytes for a big endian 16-bit IEEE 754 float.
 ///
-@external(javascript, "./ieee_float_js.mjs", "to_bytes_16_be")
+@external(javascript, "./ieee_float_ffi.mjs", "to_bytes_16_be")
 pub fn to_bytes_16_be(f: IEEEFloat) -> BitArray {
   case f {
     Finite(f) -> <<f:16-float>>
@@ -152,7 +152,7 @@ pub fn to_bytes_16_be(f: IEEEFloat) -> BitArray {
 ///
 /// If the bit array doesn't contain exactly two bytes then NaN is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "from_bytes_16_be")
+@external(javascript, "./ieee_float_ffi.mjs", "from_bytes_16_be")
 pub fn from_bytes_16_be(bytes: BitArray) -> IEEEFloat {
   case bytes {
     <<value:16-float>> -> Finite(value)
@@ -164,7 +164,7 @@ pub fn from_bytes_16_be(bytes: BitArray) -> IEEEFloat {
 
 /// Converts an `IEEEFloat` to bytes for a little endian 32-bit IEEE 754 float.
 ///
-@external(javascript, "./ieee_float_js.mjs", "to_bytes_32_le")
+@external(javascript, "./ieee_float_ffi.mjs", "to_bytes_32_le")
 pub fn to_bytes_32_le(f: IEEEFloat) -> BitArray {
   case f {
     Finite(f) -> <<f:32-float-little>>
@@ -178,7 +178,7 @@ pub fn to_bytes_32_le(f: IEEEFloat) -> BitArray {
 ///
 /// If the bit array doesn't contain exactly four bytes then NaN is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "from_bytes_32_le")
+@external(javascript, "./ieee_float_ffi.mjs", "from_bytes_32_le")
 pub fn from_bytes_32_le(bytes: BitArray) -> IEEEFloat {
   case bytes {
     <<value:32-float-little>> -> Finite(value)
@@ -190,7 +190,7 @@ pub fn from_bytes_32_le(bytes: BitArray) -> IEEEFloat {
 
 /// Converts an `IEEEFloat` to bytes for a big endian 32-bit IEEE 754 float.
 ///
-@external(javascript, "./ieee_float_js.mjs", "to_bytes_32_be")
+@external(javascript, "./ieee_float_ffi.mjs", "to_bytes_32_be")
 pub fn to_bytes_32_be(f: IEEEFloat) -> BitArray {
   case f {
     Finite(f) -> <<f:32-float>>
@@ -204,7 +204,7 @@ pub fn to_bytes_32_be(f: IEEEFloat) -> BitArray {
 ///
 /// If the bit array doesn't contain exactly four bytes then NaN is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "from_bytes_32_be")
+@external(javascript, "./ieee_float_ffi.mjs", "from_bytes_32_be")
 pub fn from_bytes_32_be(bytes: BitArray) -> IEEEFloat {
   case bytes {
     <<value:32-float>> -> Finite(value)
@@ -216,7 +216,7 @@ pub fn from_bytes_32_be(bytes: BitArray) -> IEEEFloat {
 
 /// Converts an `IEEEFloat` to bytes for a little endian 64-bit IEEE 754 float.
 ///
-@external(javascript, "./ieee_float_js.mjs", "to_bytes_64_le")
+@external(javascript, "./ieee_float_ffi.mjs", "to_bytes_64_le")
 pub fn to_bytes_64_le(f: IEEEFloat) -> BitArray {
   case f {
     Finite(f) -> <<f:64-float-little>>
@@ -230,7 +230,7 @@ pub fn to_bytes_64_le(f: IEEEFloat) -> BitArray {
 ///
 /// If the bit array doesn't contain exactly eight bytes then NaN is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "from_bytes_64_le")
+@external(javascript, "./ieee_float_ffi.mjs", "from_bytes_64_le")
 pub fn from_bytes_64_le(bytes: BitArray) -> IEEEFloat {
   case bytes {
     <<value:64-float-little>> -> Finite(value)
@@ -242,7 +242,7 @@ pub fn from_bytes_64_le(bytes: BitArray) -> IEEEFloat {
 
 /// Converts an `IEEEFloat` to bytes for a big endian 64-bit IEEE 754 float.
 ///
-@external(javascript, "./ieee_float_js.mjs", "to_bytes_64_be")
+@external(javascript, "./ieee_float_ffi.mjs", "to_bytes_64_be")
 pub fn to_bytes_64_be(f: IEEEFloat) -> BitArray {
   case f {
     Finite(f) -> <<f:64-float>>
@@ -256,7 +256,7 @@ pub fn to_bytes_64_be(f: IEEEFloat) -> BitArray {
 ///
 /// If the bit array doesn't contain exactly eight bytes then NaN is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "from_bytes_64_be")
+@external(javascript, "./ieee_float_ffi.mjs", "from_bytes_64_be")
 pub fn from_bytes_64_be(bytes: BitArray) -> IEEEFloat {
   case bytes {
     <<value:64-float>> -> Finite(value)
@@ -273,7 +273,7 @@ pub fn from_bytes_64_be(bytes: BitArray) -> IEEEFloat {
 /// An `Error(Nil)` return value indicates that a `badarith` error occurred when
 /// executing the passed function.
 ///
-@external(javascript, "./ieee_float_js.mjs", "rescue_bad_arith")
+@external(javascript, "./ieee_float_ffi.mjs", "rescue_bad_arith")
 fn rescue_bad_arith(do: fn() -> a) -> Result(a, Nil) {
   case erlang.rescue(do) {
     Ok(r) -> Ok(r)
@@ -301,7 +301,7 @@ fn rescue_bad_arith(do: fn() -> a) -> Result(a, Nil) {
 
 /// Returns the absolute value of an `IEEEFloat`.
 ///
-@external(javascript, "./ieee_float_js.mjs", "absolute_value")
+@external(javascript, "./ieee_float_ffi.mjs", "absolute_value")
 pub fn absolute_value(f: IEEEFloat) -> IEEEFloat {
   case f {
     Finite(f) -> f |> float.absolute_value |> Finite
@@ -312,7 +312,7 @@ pub fn absolute_value(f: IEEEFloat) -> IEEEFloat {
 
 /// Adds two `IEEEFloat`s together.
 ///
-@external(javascript, "./ieee_float_js.mjs", "add")
+@external(javascript, "./ieee_float_ffi.mjs", "add")
 pub fn add(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
   case a, b {
     Finite(a), Finite(b) ->
@@ -341,7 +341,7 @@ pub fn add(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
 
 /// Rounds an `IEEEFloat` to the next highest whole number.
 ///
-@external(javascript, "./ieee_float_js.mjs", "ceiling")
+@external(javascript, "./ieee_float_ffi.mjs", "ceiling")
 pub fn ceiling(f: IEEEFloat) -> IEEEFloat {
   case f {
     Finite(f) -> f |> float.ceiling |> Finite
@@ -365,7 +365,7 @@ pub fn clamp(
 /// for equals, or `Gt` for greater than. If either value is NaN then
 /// `Error(Nil)` is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "compare")
+@external(javascript, "./ieee_float_ffi.mjs", "compare")
 pub fn compare(a: IEEEFloat, with b: IEEEFloat) -> Result(Order, Nil) {
   case a, b {
     Finite(a), Finite(b) -> Ok(float.compare(a, b))
@@ -386,7 +386,7 @@ pub fn compare(a: IEEEFloat, with b: IEEEFloat) -> Result(Order, Nil) {
 
 /// Divides one `IEEEFloat` by another.
 ///
-@external(javascript, "./ieee_float_js.mjs", "divide")
+@external(javascript, "./ieee_float_ffi.mjs", "divide")
 pub fn divide(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
   case a, b {
     NaN, _ | _, NaN -> NaN
@@ -449,7 +449,7 @@ pub fn divide(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
 
 /// Rounds an `IEEEFloat` to the next lowest whole number.
 ///
-@external(javascript, "./ieee_float_js.mjs", "floor")
+@external(javascript, "./ieee_float_ffi.mjs", "floor")
 pub fn floor(f: IEEEFloat) -> IEEEFloat {
   case f {
     Finite(f) -> f |> float.floor |> Finite
@@ -459,7 +459,7 @@ pub fn floor(f: IEEEFloat) -> IEEEFloat {
 
 /// Compares two `IEEEFloat`s, returning the larger of the two.
 ///
-@external(javascript, "./ieee_float_js.mjs", "max")
+@external(javascript, "./ieee_float_ffi.mjs", "max")
 pub fn max(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
   case a, b {
     Finite(a), Finite(b) -> float.max(a, b) |> Finite
@@ -471,7 +471,7 @@ pub fn max(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
 
 /// Compares two `IEEEFloat`s, returning the smaller of the two.
 ///
-@external(javascript, "./ieee_float_js.mjs", "min")
+@external(javascript, "./ieee_float_ffi.mjs", "min")
 pub fn min(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
   case a, b {
     Finite(a), Finite(b) -> float.min(a, b) |> Finite
@@ -483,7 +483,7 @@ pub fn min(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
 
 /// Multiplies two `IEEEFloat`s together.
 ///
-@external(javascript, "./ieee_float_js.mjs", "multiply")
+@external(javascript, "./ieee_float_ffi.mjs", "multiply")
 pub fn multiply(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
   case a, b {
     NaN, _ | _, NaN -> NaN
@@ -520,7 +520,7 @@ pub fn multiply(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
 
 /// Returns the negative of an `IEEEFloat`.
 ///
-@external(javascript, "./ieee_float_js.mjs", "negate")
+@external(javascript, "./ieee_float_ffi.mjs", "negate")
 pub fn negate(f: IEEEFloat) -> IEEEFloat {
   case f {
     Finite(f) -> f |> float.negate |> Finite
@@ -532,7 +532,7 @@ pub fn negate(f: IEEEFloat) -> IEEEFloat {
 
 /// Returns the results of the base being raised to the power of the exponent.
 ///
-@external(javascript, "./ieee_float_js.mjs", "power")
+@external(javascript, "./ieee_float_ffi.mjs", "power")
 pub fn power(f: IEEEFloat, exp: IEEEFloat) -> IEEEFloat {
   case f, exp {
     Finite(f), Finite(exp) ->
@@ -597,7 +597,7 @@ pub fn power(f: IEEEFloat, exp: IEEEFloat) -> IEEEFloat {
 /// On the Erlang target this updates the random state in the process
 /// dictionary. See <https://www.erlang.org/doc/man/rand.html#uniform-0>.
 ///
-@external(javascript, "./ieee_float_js.mjs", "random")
+@external(javascript, "./ieee_float_ffi.mjs", "random")
 pub fn random() -> IEEEFloat {
   Finite(float.random())
 }
@@ -605,7 +605,7 @@ pub fn random() -> IEEEFloat {
 /// Rounds an `IEEEFloat` to the nearest whole number as an `Int`. If the input
 /// value is not finite then `Error(Nil)` is returned.
 ///
-@external(javascript, "./ieee_float_js.mjs", "round")
+@external(javascript, "./ieee_float_ffi.mjs", "round")
 pub fn round(f: IEEEFloat) -> Result(Int, Nil) {
   case f {
     Finite(f) -> f |> float.round |> Ok
@@ -615,14 +615,14 @@ pub fn round(f: IEEEFloat) -> Result(Int, Nil) {
 
 /// Returns the square root of an `IEEEFloat`.
 ///
-@external(javascript, "./ieee_float_js.mjs", "square_root")
+@external(javascript, "./ieee_float_ffi.mjs", "square_root")
 pub fn square_root(f: IEEEFloat) -> IEEEFloat {
   power(f, Finite(0.5))
 }
 
 /// Subtracts one `IEEEFloat` from another.
 ///
-@external(javascript, "./ieee_float_js.mjs", "subtract")
+@external(javascript, "./ieee_float_ffi.mjs", "subtract")
 pub fn subtract(a: IEEEFloat, b: IEEEFloat) -> IEEEFloat {
   add(a, negate(b))
 }
