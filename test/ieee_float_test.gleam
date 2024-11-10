@@ -1,88 +1,86 @@
 import gleam/bit_array
 import gleam/list
 import gleam/order
+import gleeunit
+import gleeunit/should
 import ieee_float.{
   type IEEEFloat, finite, nan, negative_infinity, positive_infinity,
 }
-import startest
-import startest/config.{Config}
-import startest/expect
-import startest/reporters/dot
 
 pub fn main() {
-  startest.run(Config(..startest.default_config(), reporters: [dot.new()]))
+  gleeunit.main()
 }
 
 pub fn finite_test() {
   finite(1.0)
   |> ieee_float.is_finite
-  |> expect.to_be_true
+  |> should.be_true
 }
 
 pub fn positive_infinity_test() {
   positive_infinity()
   |> ieee_float.is_finite
-  |> expect.to_be_false
+  |> should.be_false
 
   positive_infinity()
   |> ieee_float.compare(finite(0.0))
-  |> expect.to_equal(Ok(order.Gt))
+  |> should.equal(Ok(order.Gt))
 }
 
 pub fn negative_infinity_test() {
   negative_infinity()
   |> ieee_float.is_finite
-  |> expect.to_be_false
+  |> should.be_false
 
   negative_infinity()
   |> ieee_float.compare(finite(0.0))
-  |> expect.to_equal(Ok(order.Lt))
+  |> should.equal(Ok(order.Lt))
 }
 
 pub fn nan_test() {
   nan()
   |> ieee_float.is_nan
-  |> expect.to_be_true
+  |> should.be_true
 }
 
 pub fn to_finite_test() {
   finite(1.0)
   |> ieee_float.to_finite
-  |> expect.to_equal(Ok(1.0))
+  |> should.equal(Ok(1.0))
 
   positive_infinity()
   |> ieee_float.to_finite
-  |> expect.to_equal(Error(Nil))
+  |> should.equal(Error(Nil))
 
   negative_infinity()
   |> ieee_float.to_finite
-  |> expect.to_equal(Error(Nil))
+  |> should.equal(Error(Nil))
 
   nan()
   |> ieee_float.to_finite
-  |> expect.to_equal(Error(Nil))
+  |> should.equal(Error(Nil))
 }
 
 pub fn to_string_test() {
   finite(123.0)
   |> ieee_float.to_string
-  |> expect.to_equal("123.0")
+  |> should.equal("123.0")
 
   finite(-8.1)
   |> ieee_float.to_string
-  |> expect.to_equal("-8.1")
+  |> should.equal("-8.1")
 
   positive_infinity()
   |> ieee_float.to_string
-  |> expect.to_equal("Infinity")
+  |> should.equal("Infinity")
 
   negative_infinity()
   |> ieee_float.to_string
-  |> expect.to_equal("-Infinity")
+  |> should.equal("-Infinity")
 
   nan()
   |> ieee_float.to_string
-  |> expect.to_equal("NaN")
+  |> should.equal("NaN")
 }
 
 pub fn parse_test() {
@@ -123,11 +121,11 @@ pub fn fp16_bytes_serde_test() {
   // Check overly large values round to infinity
   finite(1_000_000.0)
   |> ieee_float.to_bytes_16_be
-  |> expect.to_equal(<<0x7C, 0x00>>)
+  |> should.equal(<<0x7C, 0x00>>)
 
   finite(-1_000_000.0)
   |> ieee_float.to_bytes_16_be
-  |> expect.to_equal(<<0xFC, 0x00>>)
+  |> should.equal(<<0xFC, 0x00>>)
 }
 
 pub fn fp32_bytes_serde_test() {
@@ -152,11 +150,11 @@ pub fn fp32_bytes_serde_test() {
   // Check overly large values round to infinity
   finite(1.7e308)
   |> ieee_float.to_bytes_32_be
-  |> expect.to_equal(<<0x7F, 0x80, 0x00, 0x00>>)
+  |> should.equal(<<0x7F, 0x80, 0x00, 0x00>>)
 
   finite(-1.7e308)
   |> ieee_float.to_bytes_32_be
-  |> expect.to_equal(<<0xFF, 0x80, 0x00, 0x00>>)
+  |> should.equal(<<0xFF, 0x80, 0x00, 0x00>>)
 }
 
 pub fn fp64_bytes_serde_test() {
@@ -198,13 +196,13 @@ fn test_ieee_bytes_serde(
     let f = from_bytes(bytes)
 
     case ieee_float.is_nan(expected_value) {
-      True -> ieee_float.is_nan(f) |> expect.to_be_true
-      False -> f |> expect.to_equal(expected_value)
+      True -> ieee_float.is_nan(f) |> should.be_true
+      False -> f |> should.equal(expected_value)
     }
 
     expected_value
     |> to_bytes
-    |> expect.to_equal(bytes)
+    |> should.equal(bytes)
   }
 
   list.each(cases, fn(x) {
@@ -221,12 +219,12 @@ fn test_ieee_bytes_serde(
   <<0>>
   |> from_bytes_be
   |> ieee_float.is_nan
-  |> expect.to_be_true
+  |> should.be_true
 
   <<0>>
   |> from_bytes_le
   |> ieee_float.is_nan
-  |> expect.to_be_true
+  |> should.be_true
 
   Nil
 }
@@ -297,43 +295,43 @@ pub fn clamp_test() {
 
 pub fn compare_test() {
   ieee_float.compare(finite(1.0), finite(1.0))
-  |> expect.to_equal(Ok(order.Eq))
+  |> should.equal(Ok(order.Eq))
 
   ieee_float.compare(finite(1.0), finite(2.0))
-  |> expect.to_equal(Ok(order.Lt))
+  |> should.equal(Ok(order.Lt))
 
   ieee_float.compare(finite(2.0), finite(1.0))
-  |> expect.to_equal(Ok(order.Gt))
+  |> should.equal(Ok(order.Gt))
 
   ieee_float.compare(finite(0.0), positive_infinity())
-  |> expect.to_equal(Ok(order.Lt))
+  |> should.equal(Ok(order.Lt))
 
   ieee_float.compare(positive_infinity(), finite(0.0))
-  |> expect.to_equal(Ok(order.Gt))
+  |> should.equal(Ok(order.Gt))
 
   ieee_float.compare(finite(0.0), negative_infinity())
-  |> expect.to_equal(Ok(order.Gt))
+  |> should.equal(Ok(order.Gt))
 
   ieee_float.compare(negative_infinity(), finite(0.0))
-  |> expect.to_equal(Ok(order.Lt))
+  |> should.equal(Ok(order.Lt))
 
   ieee_float.compare(negative_infinity(), negative_infinity())
-  |> expect.to_equal(Ok(order.Eq))
+  |> should.equal(Ok(order.Eq))
 
   ieee_float.compare(negative_infinity(), positive_infinity())
-  |> expect.to_equal(Ok(order.Lt))
+  |> should.equal(Ok(order.Lt))
 
   ieee_float.compare(positive_infinity(), negative_infinity())
-  |> expect.to_equal(Ok(order.Gt))
+  |> should.equal(Ok(order.Gt))
 
   ieee_float.compare(positive_infinity(), positive_infinity())
-  |> expect.to_equal(Ok(order.Eq))
+  |> should.equal(Ok(order.Eq))
 
   ieee_float.compare(finite(0.0), nan())
-  |> expect.to_equal(Error(Nil))
+  |> should.equal(Error(Nil))
 
   ieee_float.compare(nan(), finite(0.0))
-  |> expect.to_equal(Error(Nil))
+  |> should.equal(Error(Nil))
 }
 
 pub fn divide_test() {
@@ -490,44 +488,44 @@ pub fn random_test() {
 
   i
   |> ieee_float.compare(finite(1.0))
-  |> expect.to_equal(Ok(order.Lt))
+  |> should.equal(Ok(order.Lt))
 
   i
   |> ieee_float.add(finite(2.23e-308))
   |> ieee_float.compare(finite(0.0))
-  |> expect.to_equal(Ok(order.Gt))
+  |> should.equal(Ok(order.Gt))
 }
 
 pub fn round_test() {
   finite(8.1)
   |> ieee_float.round
-  |> expect.to_equal(Ok(8))
+  |> should.equal(Ok(8))
 
   finite(8.4)
   |> ieee_float.round
-  |> expect.to_equal(Ok(8))
+  |> should.equal(Ok(8))
 
   finite(8.499)
   |> ieee_float.round
-  |> expect.to_equal(Ok(8))
+  |> should.equal(Ok(8))
 
   finite(8.5)
   |> ieee_float.round
-  |> expect.to_equal(Ok(9))
+  |> should.equal(Ok(9))
 
   finite(-8.1)
   |> ieee_float.round
-  |> expect.to_equal(Ok(-8))
+  |> should.equal(Ok(-8))
 
   finite(-7.5)
   |> ieee_float.round
-  |> expect.to_equal(Ok(-8))
+  |> should.equal(Ok(-8))
 
   [positive_infinity(), negative_infinity(), nan()]
   |> list.each(fn(f) {
     f
     |> ieee_float.round
-    |> expect.to_equal(Error(Nil))
+    |> should.equal(Error(Nil))
   })
 }
 
@@ -585,7 +583,7 @@ fn build_test_function3(f: fn(a, b, c) -> IEEEFloat) {
 
 fn check_expected_value(value: IEEEFloat, expected_value: IEEEFloat) {
   case ieee_float.is_nan(value) {
-    True -> ieee_float.is_nan(value) |> expect.to_be_true
-    False -> value |> expect.to_equal(expected_value)
+    True -> ieee_float.is_nan(value) |> should.be_true
+    False -> value |> should.equal(expected_value)
   }
 }
