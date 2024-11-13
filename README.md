@@ -7,6 +7,7 @@ This Gleam library provides an `IEEEFloat` type that is compliant with the IEEE
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/ieee_float/)
 ![Erlang Compatible](https://img.shields.io/badge/target-erlang-a90432)
 ![JavaScript Compatible](https://img.shields.io/badge/target-javascript-f3e155)
+[![Semantic Release](https://img.shields.io/badge/semantic--release-conventionalcommits-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
 ## Background
 
