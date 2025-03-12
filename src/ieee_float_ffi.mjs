@@ -107,15 +107,15 @@ function to_bytes_16(num, littleEndian) {
 }
 
 function from_bytes_16(bitArray, littleEndian) {
-  if (bitArray.length !== 2) {
+  if (bitArray.bitSize !== 16) {
     return NaN;
   }
 
   let intValue;
   if (littleEndian) {
-    intValue = bitArray.buffer[0] + bitArray.buffer[1] * 256;
+    intValue = bitArray.byteAt(0) + bitArray.byteAt(1) * 256;
   } else {
-    intValue = bitArray.buffer[0] * 256 + bitArray.buffer[1];
+    intValue = bitArray.byteAt(0) * 256 + bitArray.byteAt(1);
   }
 
   const sign = intValue >= 0x8000 ? -1 : 1;
@@ -144,11 +144,21 @@ function to_bytes_32(f, littleEndian) {
 }
 
 function from_bytes_32(bitArray, littleEndian) {
-  if (bitArray.length !== 4) {
+  if (bitArray.bitSize !== 32) {
     return NaN;
   }
 
-  const view = new DataView(bitArray.buffer.buffer, bitArray.buffer.byteOffset);
+  let buffer = bitArray.rawBuffer;
+  if (bitArray.bitOffset !== 0) {
+    buffer = new Uint8Array([
+      bitArray.byteAt(0),
+      bitArray.byteAt(1),
+      bitArray.byteAt(2),
+      bitArray.byteAt(3),
+    ]);
+  }
+
+  const view = new DataView(buffer.buffer, buffer.byteOffset);
 
   return view.getFloat32(0, littleEndian);
 }
@@ -163,11 +173,25 @@ function to_bytes_64(f, littleEndian) {
 }
 
 function from_bytes_64(bitArray, littleEndian) {
-  if (bitArray.length !== 8) {
+  if (bitArray.bitSize !== 64) {
     return NaN;
   }
 
-  const view = new DataView(bitArray.buffer.buffer, bitArray.buffer.byteOffset);
+  let buffer = bitArray.rawBuffer;
+  if (bitArray.bitOffset !== 0) {
+    buffer = new Uint8Array([
+      bitArray.byteAt(0),
+      bitArray.byteAt(1),
+      bitArray.byteAt(2),
+      bitArray.byteAt(3),
+      bitArray.byteAt(4),
+      bitArray.byteAt(5),
+      bitArray.byteAt(6),
+      bitArray.byteAt(7),
+    ]);
+  }
+
+  const view = new DataView(buffer.buffer, buffer.byteOffset);
 
   return view.getFloat64(0, littleEndian);
 }
