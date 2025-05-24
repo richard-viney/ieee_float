@@ -1,5 +1,3 @@
-import gleam/erlang
-import gleam/erlang/atom
 import gleam/float
 import gleam/int
 import gleam/order.{type Order}
@@ -273,31 +271,9 @@ pub fn from_bytes_64_be(bytes: BitArray) -> IEEEFloat {
 /// An `Error(Nil)` return value indicates that a `badarith` error occurred when
 /// executing the passed function.
 ///
+@external(erlang, "ieee_float_ffi", "rescue_bad_arith")
 @external(javascript, "./ieee_float_ffi.mjs", "rescue_bad_arith")
-fn rescue_bad_arith(do: fn() -> a) -> Result(a, Nil) {
-  case erlang.rescue(do) {
-    Ok(r) -> Ok(r)
-
-    Error(erlang.Errored(reason)) -> {
-      // Convert reason to string
-      let reason =
-        reason
-        |> atom.from_dynamic
-        |> result.map(atom.to_string)
-
-      case reason == Ok("badarith") {
-        True -> Error(Nil)
-        False ->
-          panic as {
-            "Unexpected error in float operation: " <> string.inspect(reason)
-          }
-      }
-    }
-
-    Error(e) ->
-      panic as { "Unexpected error in float operation: " <> string.inspect(e) }
-  }
-}
+fn rescue_bad_arith(do: fn() -> a) -> Result(a, Nil)
 
 /// Returns the absolute value of an `IEEEFloat`.
 ///
