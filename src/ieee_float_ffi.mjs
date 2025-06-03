@@ -319,7 +319,7 @@ export function subtract(a, b) {
 }
 
 export function square_root(f) {
-  return Math.sqrt(f);
+  return f ** 0.5;
 }
 
 export function rescue_bad_arith() {}
