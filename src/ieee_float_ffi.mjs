@@ -3,8 +3,8 @@ import {
   parse_float,
   random_uniform,
 } from "../gleam_stdlib/gleam_stdlib.mjs";
-import { Eq, Gt, Lt } from "../gleam_stdlib/gleam/order.mjs";
-import { BitArray, Ok, Error } from "../prelude.mjs";
+import { Order$Eq, Order$Gt, Order$Lt } from "../gleam_stdlib/gleam/order.mjs";
+import { BitArray$BitArray, Result$Ok, Result$Error } from "../prelude.mjs";
 
 const Nil = undefined;
 
@@ -33,7 +33,7 @@ export function is_nan(f) {
 }
 
 export function to_finite(f) {
-  return Number.isFinite(f) ? new Ok(f) : new Error(Nil);
+  return Number.isFinite(f) ? Result$Ok(f) : Result$Error(Nil);
 }
 
 export function to_string(f) {
@@ -103,7 +103,7 @@ function to_bytes_16(num, littleEndian) {
     u8Array[1] = a;
   }
 
-  return new BitArray(u8Array);
+  return BitArray$BitArray(u8Array);
 }
 
 function from_bytes_16(bitArray, littleEndian) {
@@ -140,7 +140,7 @@ function to_bytes_32(f, littleEndian) {
   const view = new DataView(u8Array.buffer);
   view.setFloat32(0, f, littleEndian);
 
-  return new BitArray(u8Array);
+  return BitArray$BitArray(u8Array);
 }
 
 function from_bytes_32(bitArray, littleEndian) {
@@ -169,7 +169,7 @@ function to_bytes_64(f, littleEndian) {
   const view = new DataView(u8Array.buffer);
   view.setFloat64(0, f, littleEndian);
 
-  return new BitArray(u8Array);
+  return BitArray$BitArray(u8Array);
 }
 
 function from_bytes_64(bitArray, littleEndian) {
@@ -258,15 +258,15 @@ export function ceiling(f) {
 
 export function compare(a, b) {
   if (Number.isNaN(a) || Number.isNaN(b)) {
-    return new Error(Nil);
+    return Result$Error(Nil);
   }
 
   if (a === b) {
-    return new Ok(new Eq());
+    return Result$Ok(Order$Eq());
   } else if (a < b) {
-    return new Ok(new Lt());
+    return Result$Ok(Order$Lt());
   } else {
-    return new Ok(new Gt());
+    return Result$Ok(Order$Gt());
   }
 }
 
@@ -304,13 +304,13 @@ export function random() {
 
 export function round(f) {
   if (!Number.isFinite(f)) {
-    return new Error(Nil);
+    return Result$Error(Nil);
   }
 
   if (f >= 0) {
-    return new Ok(Math.round(f));
+    return Result$Ok(Math.round(f));
   } else {
-    return new Ok(-Math.round(-f));
+    return Result$Ok(-Math.round(-f));
   }
 }
 
