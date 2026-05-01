@@ -1,6 +1,6 @@
 name = "ieee_float"
 description = "Gleam library that provides an IEEE 754 compliant float type."
-gleam = ">= 1.13.0"
+gleam = ">= 1.16.0"
 licences = ["MIT"]
 repository = { type = "github", user = "richard-viney", repo = "ieee_float" }
 links = [
@@ -8,10 +8,10 @@ links = [
 ]
 
 [dependencies]
-gleam_stdlib = ">= 0.65.0 and < 2.0.0"
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
 
 [dev-dependencies]
-gleeunit = ">= 1.6.1 and < 2.0.0"
+gleeunit = ">= 1.10.0 and < 2.0.0"
 
 [javascript]
 deno = { allow_read = true }
